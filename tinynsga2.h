@@ -3,6 +3,7 @@
 #include <vector>
 #include <array>
 #include <numeric>
+#include <algorithm>
 #include <random>
 
 namespace TinyNSGA2 {
@@ -23,16 +24,16 @@ namespace TinyNSGA2 {
     std::vector<float>  m_crowding_distances;
     std::vector<size_t> m_indices;
 
-    static std::strong_ordering dominates(const ET &a, const ET &b) {
-      bool adb = 0;
-      bool bda = 0;
+    static int dominates(const ET &a, const ET &b) {
+      int adb = 0;
+      int bda = 0;
 
       for (size_t i = 0; i < N; i++) {
         adb |= a[i] < b[i];
         bda |= a[i] > b[i];
       }
 
-      return adb <=> bda;
+      return adb - bda;
     }
 
     std::vector<size_t>::iterator nondominated_sort(std::vector<size_t>::iterator begin, std::vector<size_t>::iterator end) {
@@ -67,7 +68,7 @@ namespace TinyNSGA2 {
       }
 
       for (size_t i = 0; i < N; i++) {
-        std::sort(begin, end, [&](const auto &a, const auto &b) {
+        std::sort(begin, end, [&](size_t a, size_t b) {
           return m_evaluations[a][i] < m_evaluations[b][i];
         });
 
@@ -159,7 +160,7 @@ namespace TinyNSGA2 {
           assign_crowding_distance(it, front_end);
 
           if (front_end > std::begin(m_indices) + m_population_size) {
-            std::sort(it, front_end, [&](const auto &a, const auto &b) {
+            std::sort(it, front_end, [&](size_t a, size_t b) {
               return m_crowding_distances[a] > m_crowding_distances[b];
             });
           }
