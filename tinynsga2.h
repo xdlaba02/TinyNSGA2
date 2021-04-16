@@ -6,31 +6,24 @@
 #include <random>
 
 namespace TinyNSGA2 {
-  template <typename T, size_t N, typename IT, typename ET, typename CT, typename MT, typename RNG>
+  template <typename T, size_t N, typename IF, typename EF, typename CF, typename MF, typename RNG>
   class Evolver {
-    using IndividualType = T;
-    using InitFunctionType = IT;
-    using EvaluationFunctionType = ET;
-    using CrossFunctionType = CT;
-    using MutationFunctionType = MT;
+    using ET = std::array<float, N>;
 
-    using EvaluationType = std::array<float, N>;
-    using CrowdingDistanceType = float;
-
-    InitFunctionType       &m_initF;
-    EvaluationFunctionType &m_evaluationF;
-    CrossFunctionType      &m_crossF;
-    MutationFunctionType   &m_mutationF;
-
+    IF  &m_initF;
+    EF  &m_evaluationF;
+    CF  &m_crossF;
+    MF  &m_mutationF;
     RNG &m_rng;
 
     size_t m_population_size;
-    std::vector<IndividualType> m_population;
-    std::vector<EvaluationType> m_evaluations;
-    std::vector<CrowdingDistanceType> m_crowding_distances;
+
+    std::vector<T>      m_population;
+    std::vector<ET>     m_evaluations;
+    std::vector<float>  m_crowding_distances;
     std::vector<size_t> m_indices;
 
-    static std::strong_ordering dominates(const EvaluationType &a, const EvaluationType &b) {
+    static std::strong_ordering dominates(const ET &a, const ET &b) {
       bool adb = 0;
       bool bda = 0;
 
@@ -105,7 +98,7 @@ namespace TinyNSGA2 {
     }
 
   public:
-    Evolver(IT &initF, ET &evaluationF, CT &crossF, MT &mutationF, RNG &rng):
+    Evolver(IF &initF, EF &evaluationF, CF &crossF, MF &mutationF, RNG &rng):
         m_initF(initF),
         m_evaluationF(evaluationF),
         m_crossF(crossF),
@@ -180,13 +173,13 @@ namespace TinyNSGA2 {
       return m_population[m_indices[i]];
     }
 
-    const EvaluationType &evaluation(size_t i) {
+    const ET &evaluation(size_t i) {
       return m_evaluations[m_indices[i]];
     }
   };
 
-  template <typename T, size_t N, typename IT, typename ET, typename CT, typename MT, typename RNG>
-  Evolver<T, N, IT, ET, CT, MT, RNG> create(IT &initF, ET &evaluationF, CT &crossF, MT &mutationF, RNG &rng) {
-    return Evolver<T, N, IT, ET, CT, MT, RNG>(initF, evaluationF, crossF, mutationF, rng);
+  template <typename T, size_t N, typename IF, typename EF, typename CF, typename MF, typename RNG>
+  Evolver<T, N, IF, EF, CF, MF, RNG> create(IF &initF, EF &evaluationF, CF &crossF, MF &mutationF, RNG &rng) {
+    return Evolver<T, N, IF, EF, CF, MF, RNG>(initF, evaluationF, crossF, mutationF, rng);
   }
 }
